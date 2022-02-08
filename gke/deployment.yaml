@@ -1,0 +1,41 @@
+---
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "waiwai-nginx"
+  namespace: "default"
+  labels:
+    app: "waiwai-nginx"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: "waiwai-nginx"
+  template:
+    metadata:
+      labels:
+        app: "waiwai-nginx"
+    spec:
+      containers:
+        - name: "gke-tutorial-image-sha256-1"
+          image: "gcr.io/takagi-training-friendly-chat/gke-tutorial-image@sha256:5a0df04fc75d981c126b75a63d7d5daa2d418f72cc58981de2bc54064f6510d1"
+---
+apiVersion: "autoscaling/v2beta1"
+kind: "HorizontalPodAutoscaler"
+metadata:
+  name: "waiwai-nginx-hpa-w5yg"
+  namespace: "default"
+  labels:
+    app: "waiwai-nginx"
+spec:
+  scaleTargetRef:
+    kind: "Deployment"
+    name: "waiwai-nginx"
+    apiVersion: "apps/v1"
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+    - type: "Resource"
+      resource:
+        name: "cpu"
+        targetAverageUtilization: 80
